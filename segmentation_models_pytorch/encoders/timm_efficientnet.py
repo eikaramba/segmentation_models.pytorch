@@ -6,7 +6,7 @@ from timm.models.efficientnet import decode_arch_def, round_channels, default_cf
 from timm.models.layers.activations import Swish
 
 from ._base import EncoderMixin
-
+from . import _utils as utils
 
 def get_efficientnet_kwargs(channel_multiplier=1.0, depth_multiplier=1.0, drop_rate=0.2):
     """Creates an EfficientNet model.
@@ -125,6 +125,29 @@ class EfficientNetBaseEncoder(EfficientNet, EncoderMixin):
         state_dict.pop("classifier.bias")
         state_dict.pop("classifier.weight")
         super().load_state_dict(state_dict, **kwargs)
+
+    def make_dilated(self, stage_list, dilation_list=None):
+        if dilation_list is None:
+            dilation_list = map(lambda x: 2**(x+1), range(len(stage_list)))
+        stages = self.get_stages()
+        dilation = 1
+        for stage_indx, stage_dilation in zip(stage_list, dilation_list):
+            # Patch Conv2d modules replacing strides with dilation
+            for mod in stages[stage_indx].modules():
+                if isinstance(mod, nn.Conv2d):
+                    kh, kw = utils.to_tuple(mod.kernel_size)
+
+                    if not utils.to_tuple(mod.kernel_size) == (1, 1):
+                        mod.padding = ((kh // 2) * dilation, (kw // 2) * dilation)
+                        if hasattr(mod, "static_padding"):
+                            mod.static_padding = nn.Identity()
+
+                        if dilation > 1:
+                            mod.dilation = (dilation, dilation)
+
+                    if utils.to_tuple(mod.stride) == (2, 2):
+                       mod.stride = (1, 1)
+                       dilation = stage_dilation  # for subsequent layers
 
 
 class EfficientNetEncoder(EfficientNetBaseEncoder):
