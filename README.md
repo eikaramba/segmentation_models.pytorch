@@ -4,20 +4,25 @@
 **Python library with Neural Networks for Image  
 Segmentation based on [PyTorch](https://pytorch.org/).**  
 
-![PyPI version](https://badge.fury.io/py/segmentation-models-pytorch.svg) [![Build Status](https://travis-ci.com/qubvel/segmentation_models.pytorch.svg?branch=master)](https://travis-ci.com/qubvel/segmentation_models.pytorch) [![Documentation Status](https://readthedocs.org/projects/smp/badge/?version=latest)](https://smp.readthedocs.io/en/latest/?badge=latest) <br> ![Downloads](https://pepy.tech/badge/segmentation-models-pytorch) [![Generic badge](https://img.shields.io/badge/License-MIT-<COLOR>.svg)](https://shields.io/)
+[![Documentation Status](https://readthedocs.org/projects/smp/badge/?version=latest)](https://segmentation-models-pytorch.readthedocs.io/en/latest/?badge=latest) <br> [![Generic badge](https://img.shields.io/badge/License-MIT-<COLOR>.svg)](https://shields.io/)
 
 </div>
 
 The main features of this library are:
 
  - High level API (just two lines to create a neural network)
+<<<<<<< HEAD
  - 9 models architectures for binary and multi class segmentation (including legendary Unet)
  - 110 available encoders
+=======
+ - 12 models architectures for binary and multi class segmentation (including legendary Unet)
+ - 104 available encoders
+>>>>>>> master
  - All encoders have pre-trained weights for faster and better convergence
  
 ### [📚 Project Documentation 📚](http://smp.readthedocs.io/)
 
-Visit [Read The Docs Project Page](https://smp.readthedocs.io/) or read following README to know more about Segmentation Models Pytorch (SMP for short) library
+Visit [Read The Docs Project Page](https://segmentation-models-pytorch.readthedocs.io/en/latest/) or read following README to know more about Segmentation Models Pytorch (SMP for short) library
 
 ### 📋 Table of content
  1. [Quick start](#start)
@@ -51,7 +56,7 @@ model = smp.Unet(
     classes=3,                      # model output channels (number of classes in your dataset)
 )
 ```
- - see [table](#architectires) with available model architectures
+ - see [table](#architectures) with available model architectures
  - see [table](#encoders) with available encoders and their corresponding weights
 
 #### 2. Configure data preprocessing
@@ -75,7 +80,10 @@ Congratulations! You are done! Now you can train your model with your favorite f
 
 #### Architectures <a name="architectures"></a>
  - Unet [[paper](https://arxiv.org/abs/1505.04597)] [[docs](https://smp.readthedocs.io/en/latest/models.html#unet)]
- - Unet++ [[paper](https://arxiv.org/pdf/1807.10165.pdf)] [[docs](https://smp.readthedocs.io/en/latest/models.html#id2)]
+ - Unet++ [[paper1](https://arxiv.org/abs/1807.10165), [paper2](https://arxiv.org/abs/1912.05074)] [[docs](https://smp.readthedocs.io/en/latest/models.html#id2)]
+ - EfficientUNet++ [[paper]()] [[docs](https://segmentation-models-pytorch.readthedocs.io/en/latest/models.html#efficientunet)]
+ - ResUnet [[paper](https://arxiv.org/abs/1711.10684)] [[docs](https://segmentation-models-pytorch.readthedocs.io/en/latest/models.html#resunet)]
+ - ResUnet++ [[paper](https://arxiv.org/abs/1911.07067)] [[docs](https://segmentation-models-pytorch.readthedocs.io/en/latest/models.html#id4)]
  - MAnet [[paper](https://ieeexplore.ieee.org/abstract/document/9201310)] [[docs](https://smp.readthedocs.io/en/latest/models.html#manet)]
  - Linknet [[paper](https://arxiv.org/abs/1707.03718)] [[docs](https://smp.readthedocs.io/en/latest/models.html#linknet)]
  - FPN [[paper](http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf)] [[docs](https://smp.readthedocs.io/en/latest/models.html#fpn)]
@@ -387,13 +395,9 @@ model = smp.Unet('resnet34', encoder_depth=4)
 
 
 ### 🛠 Installation <a name="installation"></a>
-PyPI version:
-```bash
-$ pip install segmentation-models-pytorch
-````
 Latest version from source:
 ```bash
-$ pip install git+https://github.com/qubvel/segmentation_models.pytorch
+$ pip install git+https://github.com/jlcsilva/segmentation_models.pytorch
 ````
 
 ### 🏆 Competitions won with the library

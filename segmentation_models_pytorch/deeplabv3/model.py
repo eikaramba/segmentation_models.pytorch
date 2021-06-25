@@ -34,9 +34,11 @@ class DeepLabV3(SegmentationModel):
     Returns:
         ``torch.nn.Module``: **DeepLabV3**
 
-    .. _DeeplabV3:
+    .. _DeepLabV3:
         https://arxiv.org/abs/1706.05587
 
+    Reference:
+        https://arxiv.org/abs/1706.05587
     """
 
     def __init__(
@@ -115,10 +117,9 @@ class DeepLabV3Plus(SegmentationModel):
                 - activation (str): An activation function to apply "sigmoid"/"softmax" (could be **None** to return logits)
     Returns:
         ``torch.nn.Module``: **DeepLabV3Plus**
-    
+
     Reference:
         https://arxiv.org/abs/1802.02611v3
-
     """
     def __init__(
             self,

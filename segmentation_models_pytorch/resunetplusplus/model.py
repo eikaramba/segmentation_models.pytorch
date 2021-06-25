@@ -1,35 +1,39 @@
 from typing import Optional, Union, List
-from .decoder import UnetDecoder
+from .decoder import ResUnetPlusPlusDecoder
 from ..encoders import get_encoder
 from ..base import SegmentationModel
 from ..base import SegmentationHead, ClassificationHead
 
 
-class Unet(SegmentationModel):
-    """Unet_ is a fully convolution neural network for image semantic segmentation. Consist of *encoder* 
-    and *decoder* parts connected with *skip connections*. Encoder extract features of different spatial 
-    resolution (skip connections) which are used by decoder to define accurate segmentation mask. Use *concatenation*
-    for fusing decoder blocks with skip connections.
+class ResUnetPlusPlus(SegmentationModel):
+    """ResUnet++ is a fully convolution neural network for image semantic segmentation. Consist of *encoder* 
+    and *decoder* parts connected with *skip connections*. The encoder extracts features of different spatial 
+    resolution (skip connections) which are used by decoder to define accurate segmentation mask. 
+    
+    Applies attention to the skip connection feature maps, based on themselves and the decoder feature maps. 
+    The skip connection feature maps are then fused with the decoder feature maps through *concatenation*. 
+    Uses an Atrous Spatial Pyramid Pooling (ASPP) bridge module and residual connections inside each decoder 
+    blocks.
 
     Args:
-        encoder_name: Name of the classification model that will be used as an encoder (a.k.a backbone)
-            to extract features of different spatial resolution
-        encoder_depth: A number of stages used in encoder in range [3, 5]. Each stage generate features 
-            two times smaller in spatial dimensions than previous one (e.g. for depth 0 we will have features
-            with shapes [(N, C, H, W),], for depth 1 - [(N, C, H, W), (N, C, H // 2, W // 2)] and so on).
+        encoder_name: Name of the classification model that will be used as an encoder (a.k.a backbone) to extract features
+        encoder_depth: Number of stages of the encoder, in range [3 ,5]. Each stage generate features two times smaller, 
+            in spatial dimensions, than the previous one (e.g., for depth=0 features will haves shapes [(N, C, H, W)]), 
+            for depth 1 features will have shapes [(N, C, H, W), (N, C, H // 2, W // 2)] and so on).
             Default is 5
         encoder_weights: One of **None** (random initialization), **"imagenet"** (pre-training on ImageNet) and 
             other pretrained weights (see table with available weights for each encoder_name)
-        decoder_channels: List of integers which specify **in_channels** parameter for convolutions used in decoder.
+        decoder_channels: List of integers which specify **in_channels** parameter for convolutions used in the decoder.
             Length of the list should be the same as **encoder_depth**
         decoder_use_batchnorm: If **True**, BatchNorm2d layer between Conv2D and Activation layers
             is used. If **"inplace"** InplaceABN will be used, allows to decrease memory consumption.
             Available options are **True, False, "inplace"**
-        decoder_attention_type: Attention module used in decoder of the model. Available options are **None**, **se** and **scse**.
+        decoder_attention_type: Attention module used in decoder of the model (in addition to the built-in attention used to
+            process skip connection feature maps). Available options are **None**, **se** and **scse**.
             SE paper - https://arxiv.org/abs/1709.01507
             SCSE paper - https://arxiv.org/abs/1808.08127
-        in_channels: A number of input channels for the model, default is 3 (RGB images)
-        classes: A number of classes for output mask (or you can think as a number of channels of output mask)
+        in_channels: The number of input channels of the model, default is 3 (RGB images)
+        classes: The number of classes of the output mask. Can be thought of as the number of channels of the mask
         activation: An activation function to apply after the final convolution layer.
             Available options are **"sigmoid"**, **"softmax"**, **"logsoftmax"**, **"tanh"**, **"identity"**, **callable** and **None**.
             Default is **None**
@@ -41,10 +45,10 @@ class Unet(SegmentationModel):
                 - activation (str): An activation function to apply "sigmoid"/"softmax" (could be **None** to return logits)
 
     Returns:
-        ``torch.nn.Module``: Unet
+        ``torch.nn.Module``: ResUnetPlusPlus
 
-    .. _Unet:
-        https://arxiv.org/abs/1505.04597
+    Reference:
+        https://arxiv.org/abs/1911.07067
     """
 
     def __init__(
@@ -69,12 +73,11 @@ class Unet(SegmentationModel):
             weights=encoder_weights,
         )
 
-        self.decoder = UnetDecoder(
+        self.decoder = ResUnetPlusPlusDecoder(
             encoder_channels=self.encoder.out_channels,
             decoder_channels=decoder_channels,
             n_blocks=encoder_depth,
             use_batchnorm=decoder_use_batchnorm,
-            center=True if encoder_name.startswith("vgg") else False,
             attention_type=decoder_attention_type,
         )
 
@@ -82,7 +85,7 @@ class Unet(SegmentationModel):
             in_channels=decoder_channels[-1],
             out_channels=classes,
             activation=activation,
-            kernel_size=3,
+            kernel_size=1,
         )
 
         if aux_params is not None:
@@ -92,5 +95,5 @@ class Unet(SegmentationModel):
         else:
             self.classification_head = None
 
-        self.name = "u-{}".format(encoder_name)
+        self.name = "resunet++-{}".format(encoder_name)
         self.initialize()

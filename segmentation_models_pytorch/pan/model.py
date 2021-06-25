@@ -39,6 +39,8 @@ class PAN(SegmentationModel):
     .. _PAN:
         https://arxiv.org/abs/1805.10180
 
+    Reference:
+        https://arxiv.org/abs/1805.10180
     """
 
     def __init__(
