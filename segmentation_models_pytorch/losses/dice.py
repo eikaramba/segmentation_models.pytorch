@@ -12,14 +12,14 @@ __all__ = ["DiceLoss"]
 class DiceLoss(_Loss):
 
     def __init__(
-        self,
-        mode: str,
-        classes: Optional[List[int]] = None,
-        log_loss: bool = False,
-        from_logits: bool = True,
-        smooth: float = 0.0,
-        ignore_index: Optional[int] = None,
-        eps: float = 1e-7,
+            self,
+            mode: str,
+            classes: Optional[List[int]] = None,
+            log_loss: bool = False,
+            from_logits: bool = True,
+            smooth: float = 0.0,
+            ignore_index: Optional[int] = None,
+            eps: float = 1e-7,
     ):
         """Implementation of Dice loss for image segmentation task.
         It supports binary, multiclass and multilabel cases
@@ -86,7 +86,12 @@ class DiceLoss(_Loss):
             y_true = y_true.view(bs, num_classes, -1)
             y_pred = y_pred.view(bs, num_classes, -1)
 
-        scores = soft_dice_score(y_pred, y_true.type_as(y_pred), smooth=self.smooth, eps=self.eps, dims=dims)
+            if self.ignore_index is not None:
+                mask = y_true != self.ignore_index
+                y_pred = y_pred * mask
+                y_true = y_true * mask
+
+        scores = self.compute_score(y_pred, y_true.type_as(y_pred), smooth=self.smooth, eps=self.eps, dims=dims)
 
         if self.log_loss:
             loss = -torch.log(scores.clamp_min(self.eps))
@@ -104,4 +109,10 @@ class DiceLoss(_Loss):
         if self.classes is not None:
             loss = loss[self.classes]
 
+        return self.aggregate_loss(loss)
+
+    def aggregate_loss(self, loss):
         return loss.mean()
+
+    def compute_score(self, output, target, smooth=0.0, eps=1e-7, dims=None) -> torch.Tensor:
+        return soft_dice_score(output, target, smooth, eps, dims)
