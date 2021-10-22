@@ -16,6 +16,9 @@ EfficientUNet++
 ResUnet
 ~~~~~~~
 .. autoclass:: segmentation_models_pytorch.ResUnet
+Unet3+
+~~~~~~
+.. autoclass:: segmentation_models_pytorch.Unet3Plus
 
 ResUnet++
 ~~~~~~~~~
